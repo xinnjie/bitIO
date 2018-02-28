@@ -4,7 +4,6 @@
 
 #include "gtest/gtest.h"
 #include "bitio.h"
-
 using namespace std;
 // check if gtest could be used
 TEST(basic_check, test_eq) {

@@ -2,11 +2,13 @@
 // Created by capitalg on 2/27/18.
 //
 
+#include <cassert>
 #include "bitio.h"
 
 
 using namespace std;
 void bits_out::write(unsigned short bits, int n) {
+    assert(n <= sizeof(unsigned short)*8);
     int bits_left = 0;
     while (bits_left != n) {
         int next_to_store_bits = min(8 - this->buf_rest, n - bits_left);
@@ -49,6 +51,7 @@ void bits_out::flush() {
 }
 
 unsigned short bits_in::read(int n) {
+    assert(n <= sizeof(unsigned short)*8);
     unsigned short bits = 0;
     int bits_left = 0;
     while (bits_left != n) {

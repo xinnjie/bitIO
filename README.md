@@ -2,7 +2,7 @@
 
 bitIO is a easy-to-use bit-oriented stream library.
 
-###`bits_in` & `bits_out` object
+### `bits_in` & `bits_out` object
 `bits_in` & `bits_out` is the central object dealing with reading & writing bits.
 
 #### construct
@@ -28,7 +28,8 @@ example:
     out.write(1);
     
 Here we write 7 bits to file temp.bin.
-Of cource, we write multiple 7-bit to the stream.
+
+Of cource, we can also write multiple 7-bit to the stream.
     
     for (int i = 0; i < 10; ++i) {
             out.write(i);
@@ -68,3 +69,13 @@ F: What happened when I write only 7-bit `127` to the file? Is the size of conte
 
 A: No, the minial unit of standard iostreams is byte, which mean size of the reading\writing content should be 8's integral	multiples(e.g. 8 bits, 16 bits, 24 bits...), the unused part will be padding with 0.
 For this example, the content will be `01111111`.
+
+
+## download
+only `bitio.cpp` & `bitio.h` is essential.
+
+## benchmark
+bitIO is about 1 time lower than normal iostream
+
+# todo
+* make api stream like

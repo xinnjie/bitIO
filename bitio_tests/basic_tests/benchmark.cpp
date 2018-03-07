@@ -4,18 +4,31 @@
 #include "gtest/gtest.h"
 #include "bitio.h"
 
+#define BITS_N 8
 using namespace std;
 TEST(benchmark, test1) {
-    bits_out out(ofstream("temp"), 11);
-    for (int i = 0; i < 1000000000; ++i) {
+    bits_out out(ofstream("temp"), BITS_N);
+    for (int i = 0; i < 100000000; ++i) {
         out.write(1);
     }
 }
 
 TEST(benchmark, test1_std) {
     ofstream out("temp");
-    for (int i = 0; i < 1000000000; ++i) {
+    int n = 100000000*BITS_N/8;
+    for (int i = 0; i < n; ++i) {
         out.put(1);
-        out.put(1);
+    }
+}
+
+
+TEST(benchmark, test1_std_str) {
+    ofstream out("temp");
+    char buff[1000];
+    ASSERT_EQ(sizeof(buff), 1000);
+    int n = 100000000/1000*BITS_N/8;
+
+    for (int i = 0; i < n; ++i) {
+        out.write(buff, sizeof(buff));
     }
 }

@@ -75,7 +75,21 @@ For this example, the content will be `01111111`.
 only `bitio.cpp` & `bitio.h` is essential.
 
 ## benchmark
-bitIO is about 1 time lower than normal iostream
+###test on macbook I5 2.7GHz, 256GB SSD
+
+|                                       |  100MB   |
+|---------------------------------------|----------|
+| bits_out.wirte(1)                     | 1s 481ms |
+| ofstream.put(1)                       | 1s 152ms |
+| ofstream.write() (1000bytes per time) | 408ms    |
+
+<sub>see benchmark.cpp test1 </sub>
+
+
+since bits_out.write() put 1 number to buffer per time, compared to ofstream.put(), is about 30%~40% slower.
+
+compared to ofstream.write(), it's 2 times slower. But if I add concurrent strategy to writing multiple set of bits to bitsIO, performance will be better
 
 # todo
 * make api stream like
+* use device concept: any object has (read, write, put, get) can fit into bitsio

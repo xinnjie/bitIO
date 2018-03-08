@@ -11,15 +11,19 @@
 class bits_in {
     std::ifstream in;
     unsigned char byte;
-    int byte_rest;
+    int byte_used;
     int  default_size;
     std::vector<unsigned char> buffer;
-    int buffer_rest;
+    int buffer_used;
+
+    void read_byte_from_buffer();
+
 public:
     explicit bits_in(std::ifstream &&input, int default_size, int buffer_size=1024)
-            : in(std::move(input)), byte(0), byte_rest(0), default_size(default_size),
-              buffer(buffer_size), buffer_rest(0) {
-        byte = in.get();
+            : in(std::move(input)), byte(0), byte_used(0), default_size(default_size),
+              buffer(buffer_size), buffer_used(buffer_size) {
+        assert(buffer_size > 0);
+        read_byte_from_buffer();
     }
 
     ~bits_in();
@@ -27,7 +31,7 @@ public:
     unsigned short read(int n);
     unsigned short read();
 
-    void padding_read();
+    void skip_byte();
 };
 
 class bits_out {
@@ -53,7 +57,9 @@ class bits_out {
     void put_byte2buffer();
 public:
     explicit bits_out(std::ofstream &&out, int default_size, int buffer_size=1024) :
-            out(std::move(out)), byte(0), byte_used(0), default_size(default_size), buffer(buffer_size), buffer_used(0){}
+            out(std::move(out)), byte(0), byte_used(0), default_size(default_size), buffer(buffer_size), buffer_used(0){
+        assert(buffer_size > 0);
+    }
 
     ~bits_out();
 
@@ -63,9 +69,18 @@ public:
      * @param n set how many  lower bit you want to write
      */
     void write(unsigned short bits, int n);
+
+    /*!
+     * like   void write(unsigned short bits, int n), with n equal to default_size
+     * @param bits
+     */
     void write(unsigned short bits);
     void flush();
-    void padding_write();
+    /*!
+     * fill the current byte with 0
+     * e.g. 5bits of the current byte has been used, say 11011b, after write_padding(), this byte become 00011011b, has been writen to the buffer.
+     */
+    void write_padding();
 };
 
 

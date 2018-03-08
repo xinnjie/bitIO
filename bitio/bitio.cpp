@@ -27,7 +27,7 @@ void bits_out::write(unsigned short bits, int n) {
     }
 }
 
-void bits_out::padding_write() {
+void bits_out::write_padding() {
     if (this->byte_used != 0) {
         put_byte2buffer();
     }
@@ -38,11 +38,13 @@ void bits_out::write(unsigned short bits) {
 }
 
 bits_out::~bits_out() {
-    this->padding_write();
+    this->flush();
+    out.close();
+
 }
 
 void bits_out::flush() {
-    this->padding_write();
+    this->write_padding();
 //    unsigned char temp = 1;
     out.write(reinterpret_cast<char*>(&buffer[0]), buffer_used);
     out.flush();
@@ -66,33 +68,32 @@ unsigned short bits_in::read(int n) {
     unsigned short bits = 0;
     int bits_left = 0;
     while (bits_left != n) {
-        if (this->byte_rest == 8) {
-            this->byte = in.get();
-            this->byte_rest = 0;
+        if (this->byte_used == 8) {
+            read_byte_from_buffer();
         }
-        int next_to_capture = min(8 - this->byte_rest, n - bits_left);
+        int next_to_capture = min(8 - this->byte_used, n - bits_left);
         // set left part of buff, which is unused, to 0
-        int shift = 8 - this->byte_rest - next_to_capture;
+        int shift = 8 - this->byte_used - next_to_capture;
         unsigned short captured = (this->byte << shift) & 0xff;
         captured >>= shift;
         // align
-        captured = captured >> this->byte_rest << bits_left;
+        captured = captured >> this->byte_used << bits_left;
         // store
         bits |= captured;
         // update
-        this->byte_rest += next_to_capture;
+        this->byte_used += next_to_capture;
         bits_left += next_to_capture;
-//        if (this->byte_rest == 8) {
+//        if (this->byte_used == 8) {
 //            this->byte = in.get();
-//            this->byte_rest = 0;
+//            this->byte_used = 0;
 //        }
     }
     return bits;
 }
 
-void bits_in::padding_read() {
-    if (this->byte_rest != 8) {
-        this->byte_rest = 8;
+void bits_in::skip_byte() {
+    if (this->byte_used != 8) {
+        this->byte_used = 8;
     }
 }
 
@@ -101,5 +102,16 @@ unsigned short bits_in::read() {
 }
 
 bits_in::~bits_in() {
-    this->padding_read();
+    this->skip_byte();
+    in.close();
+}
+
+void bits_in::read_byte_from_buffer() {
+    if (buffer_used == buffer.size()) {  // if buffer is full
+        in.read(reinterpret_cast<char*>(&buffer[0]), buffer.size());
+        buffer_used = 0;
+    }
+    // read the byte from buffer
+    this->byte = buffer[buffer_used++] ;
+    this->byte_used = 0;
 }
